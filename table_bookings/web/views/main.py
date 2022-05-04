@@ -1,8 +1,13 @@
 from django.views.generic import TemplateView
+from ..models import Recommendation
 
 
 class IndexView(TemplateView):
     template_name = 'main/index.html'
 
     def get_context_data(self, **kwargs):
-        return {}
+        recommendations = Recommendation.objects.filter(visible=True).order_by('sort')\
+                              .select_related('restaurant').all()[:4]
+        return {
+            'recommendations' : recommendations
+        }
