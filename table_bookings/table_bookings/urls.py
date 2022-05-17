@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from web.views.main import IndexView, SearchView
+from web.views.main import IndexView, SearchView, SearchJsonView
 from web.views.users import RegisterView, LoginView, LogoutView, VerificationView
 
 urlpatterns = [
@@ -14,6 +14,7 @@ urlpatterns = [
     path('verify/', VerificationView.as_view(), name='verification'),
 
     path('search/', SearchView.as_view(), name='search'),
+    path('search/json/', SearchJsonView.as_view(), name='search-json'),
 
     path('oauth/', include('allauth.urls')),
 ]
