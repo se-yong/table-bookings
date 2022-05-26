@@ -1,5 +1,6 @@
 import datetime
 import random
+import requests
 from datetime import timedelta, date
 
 from django.contrib import messages
@@ -108,6 +109,7 @@ class BookingView(LoginRequiredMixin, TemplateView):
                 restaurant=seat.restaurant,
                 table=seat.table,
                 seat=seat,
+                status=Booking.PayStatus.READY,
                 defaults={
                     'price': seat.table.price,
                     'order_number': new_order_number
@@ -142,3 +144,43 @@ class BookingView(LoginRequiredMixin, TemplateView):
         booking.save()
 
         return JsonResponse({}, safe=False)
+
+
+class PayView(TemplateView):
+    template_name = 'restaurant/confirm.html'
+
+    def get_context_data(self, status):
+        pg_key = self.request.GET.get('paymentKey')
+        order_number = self.request.GET.get('orderId')
+        amount = self.request.GET.get('amount')
+
+        booking = get_object_or_404(Booking, order_number=order_number)
+
+        if booking.price != int(amount) or booking.status != Booking.PayStatus.READY:
+            raise PermissionDenied()
+
+        if status == 'success':
+            response = requests.post('https://api.tosspayments.com/v1/payments/' + pg_key, json={
+                'amount': amount,
+                'orderId': order_number
+            }, headers={
+                'Authorization': 'Basic dGVzdF9za196WExrS0V5cE5BcldtbzUwblgzbG1lYXhZRzVSOg==',
+                'Content-Type': 'application/json'
+            })
+            with transaction.atomic():
+                booking = get_object_or_404(Booking, order_number=order_number)
+                booking.pg_transaction_number = pg_key
+
+                if response.ok:
+                    booking.status = Booking.PayStatus.PAID
+                    booking.paid_at = timezone.now()
+                else:
+                    booking.status = Booking.PayStatus.FAILED
+                booking.save()
+        else:
+            booking.status = Booking.PayStatus.FAILED
+            booking.save()
+
+        return {
+            'booking': booking
+        }
