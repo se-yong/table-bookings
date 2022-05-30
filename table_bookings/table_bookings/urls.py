@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from web.views.main import IndexView, SearchView, SearchJsonView
 from web.views.users import RegisterView, LoginView, LogoutView, VerificationView, ProfileView, PasswordView
 from web.views.restaurant import RestaurantView, BookingView, PayView
-from web.views.history import BookingHistoryView
+from web.views.history import BookingHistoryView, BookingCancelView
 
 
 urlpatterns = [
@@ -28,6 +28,7 @@ urlpatterns = [
 
     path('restaurant/confirm/<str:status>', PayView.as_view(), name='payment'),
     path('history/', BookingHistoryView.as_view(), name='history'),
+    path('cancel/<int:booking_id>/', BookingCancelView.as_view(), name='cancel'),
 
     path('oauth/', include('allauth.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
