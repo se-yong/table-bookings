@@ -9,12 +9,13 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from django.db.models import Avg
 
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import TemplateView
 from django.utils import timezone
 
-from ..models import Restaurant, RestaurantTable, RestaurantImage, AvailableSeat, Booking, PayHistory
+from ..models import Restaurant, RestaurantTable, RestaurantImage, AvailableSeat, Booking, PayHistory, Review
 from ..utils import convert_weekday
 
 
@@ -56,6 +57,8 @@ class RestaurantView(TemplateView):
         restaurant = get_object_or_404(Restaurant, id=restaurant_id)
         images = RestaurantImage.objects.filter(restaurant=restaurant).all()
         tables = list(RestaurantTable.objects.filter(restaurant=restaurant).all())
+        reviews = Review.objects.filter(restaurant=restaurant).all().order_by('-created_at')[:20]
+        ratings = Review.objects.filter(restaurant=restaurant).all().aggregate(Avg('ratings'))
 
         slots = []
         span_days = 10
@@ -81,7 +84,9 @@ class RestaurantView(TemplateView):
         return {
             'restaurant': restaurant,
             'images': images,
-            'slots': slots
+            'slots': slots,
+            'reviews': reviews,
+            'ratings': ratings
         }
 
 
@@ -174,6 +179,7 @@ class PayView(TemplateView):
                 if response.ok:
                     booking.status = Booking.PayStatus.PAID
                     booking.paid_at = timezone.now()
+                    PayHistory.objects.create(booking=booking, amount=booking.price)
                 else:
                     booking.status = Booking.PayStatus.FAILED
                 booking.save()

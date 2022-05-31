@@ -8,7 +8,7 @@ conda==4.10.3
 conda-package-handling @ file:///tmp/build/80754af9/conda-package-handling_1618262147379/work
 cryptography @ file:///tmp/build/80754af9/cryptography_1616767007030/work
 decorator==5.1.0
-Django==4.0.2
+Django~=4.0.4
 django-crispy-forms==1.14.0
 idna @ file:///home/linux1/recipes/ci/idna_1610986105248/work
 ipython==7.29.0
@@ -33,3 +33,6 @@ tqdm @ file:///tmp/build/80754af9/tqdm_1625563689033/work
 traitlets==5.1.1
 urllib3 @ file:///tmp/build/80754af9/urllib3_1625084269274/work
 wcwidth==0.2.5
+
+django-allauth~=0.50.0
+requests~=2.27.1
