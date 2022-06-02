@@ -1,8 +1,9 @@
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
+from django.db.models import Avg
 
 from .service.search import RestaurantSearch
-from ..models import Recommendation
+from ..models import Recommendation, Restaurant
 
 
 class IndexView(TemplateView):
@@ -11,8 +12,14 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         recommendations = Recommendation.objects.filter(visible=True).order_by('sort')\
                               .select_related('restaurant').all()[:4]
+        latest = Restaurant.objects.order_by('-created_at')[:4]
+        hottest = Restaurant.objects.annotate(average_ratings=Avg('review__ratings'))\
+            .filter(average_ratings__gte=0).order_by('-average_ratings')[:4]
+
         return {
-            'recommendations': recommendations
+            'recommendations': recommendations,
+            'latest': latest,
+            'hottest': hottest
         }
 
 

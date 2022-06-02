@@ -1,7 +1,9 @@
 import requests
 
+from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.views import View
@@ -10,9 +12,9 @@ from django.views.generic import ListView
 from ..models import Booking, PayHistory
 
 
-class BookingHistoryView(ListView):
+class BookingHistoryView(LoginRequiredMixin, ListView):
     model = Booking
-    template_name = 'history/list.html'
+    template_name = 'booking/list.html'
     paginate_by = 5
 
     def get_queryset(self):
@@ -24,9 +26,13 @@ class BookingHistoryView(ListView):
 class BookingCancelView(View):
     def get(self, request, booking_id):
         booking = get_object_or_404(Booking, pk=booking_id)
+
+        if booking.user != self.request.user:
+            raise PermissionDenied()
+
         if booking.status != Booking.PayStatus.PAID:
             messages.warning(request, '취소할 수 없는 예약입니다.')
-            return redirect('history')
+            return redirect('booking-history')
 
         response = requests.post('https://api.tosspayments.com/v1/payments/'
                                  + booking.pg_transaction_number + '/cancel',
@@ -45,4 +51,6 @@ class BookingCancelView(View):
                 booking.seat.save()
                 PayHistory.objects.create(booking=booking, amount=-booking.price)
 
-        return redirect('history')
+        return redirect('booking-history')
+
+

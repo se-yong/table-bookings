@@ -27,7 +27,7 @@
                                 {% for time in slot.times %}
                                 <tr>
                                     <td>
-                                        {% if user.is_authenticated %}<a href="{% url 'booking' time.restaurant_id time.seat_id %}">{% endif %}
+                                        {% if user.is_authenticated %}<a href="{% url 'restaurant-booking' time.restaurant_id time.seat_id %}">{% endif %}
                                         {{ time.time|time:"H:i" }}<br>
                                         {{ time.price|floatformat:0|intcomma }}<br>
                                         ({{ time.remain }} / {{ time.total }})
