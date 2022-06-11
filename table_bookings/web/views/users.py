@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.models import User
@@ -103,10 +104,11 @@ class VerificationView(View):
         return redirect(reverse('index'))
 
 
-class ProfileView(UpdateView):
+class ProfileView(LoginRequiredMixin, UpdateView):
     form_class = ProfileForm
     template_name = 'users/profile.html'
     success_url = reverse_lazy('profile')
+    login_url = reverse_lazy('login')
 
     def get_object(self, queryset=None):
         return UserProfile.objects.get(user=self.request.user)
@@ -118,10 +120,11 @@ class ProfileView(UpdateView):
         return context
 
 
-class PasswordView(FormView):
+class PasswordView(LoginRequiredMixin, FormView):
     template_name = 'users/password.html'
     form_class = PasswordForm
     success_url = reverse_lazy('profile')
+    login_url = reverse_lazy('login')
 
     def form_valid(self, form):
         old_password = form.cleaned_data.get('old_password')
