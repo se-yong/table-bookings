@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.models import User
@@ -111,6 +112,11 @@ class ProfileView(LoginRequiredMixin, UpdateView):
     login_url = reverse_lazy('login')
 
     def get_object(self, queryset=None):
+        # try:
+        #    UserProfile.objects.get(pk=200)
+        # except:
+        #    raise Http404
+
         return UserProfile.objects.get(user=self.request.user)
 
     def get_context_data(self, **kwargs):
