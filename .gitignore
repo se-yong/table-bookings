@@ -5,7 +5,6 @@
 __pycache__
 db.sqlite3
 media
-settings.py
 
 # Backup files #
 *.bak
@@ -63,6 +62,9 @@ nosetests.xml
 coverage.xml
 *.cover
 .hypothesis/
+
+# AWS User-specific
+.idea/**/aws.xml
 
 # Jupyter Notebook
 .ipynb_checkpoints

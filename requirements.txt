@@ -13,10 +13,11 @@ cryptography @ file:///tmp/build/80754af9/cryptography_1616767007030/work
 decorator==5.1.0
 defusedxml==0.7.1
 Deprecated==1.2.13
-Django==4.0
+Django~=4.0.4
 django-allauth==0.50.0
 django-cors-headers==3.12.0
 django-crispy-forms==1.14.0
+django-environ==0.9.0
 django-prometheus==2.2.0
 django-redis-sessions==0.6.2
 django-request-logging==0.7.5
@@ -59,3 +60,5 @@ traitlets==5.1.1
 urllib3 @ file:///tmp/build/80754af9/urllib3_1625084269274/work
 wcwidth==0.2.5
 wrapt==1.14.1
+
+requests~=2.27.1
